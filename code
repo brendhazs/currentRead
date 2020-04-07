@@ -1,0 +1,64 @@
+#include <Adafruit_ADS1015.h>  //https://github.com/soligen2010/Adafruit_ADS1X15
+
+//pinout
+#define SDA 21
+#define SCL 22
+
+//Ammeter
+//TaskHandle_t AmmeterTaskHandle;
+//char ampDisplay[5];
+Adafruit_ADS1015 adsLeg1(0x49);
+
+float leg1;
+
+int maxValueLeg1 = 0;
+int minValueLeg1 = 0;
+float multiplier = 0.036;
+#define BAUD_RATE 115200
+
+void setup() {
+  Serial.begin(BAUD_RATE); //Programming
+  
+}
+void loop() {
+  //unused
+}
+void adsSetup() {
+  Serial.println("Setting up ADS");
+  Wire.begin(SDA, SCL);
+  Wire.setClock(2000000);
+  adsLeg1.setGain(GAIN_TWO);
+  adsLeg1.begin();
+  adsLeg1.setSPS(ADS1015_DR_3300SPS);
+  adsLeg1.startContinuous_Differential_0_1();
+ 
+
+}
+void AmmeterTask(void * parameter) {
+  long stopTime = millis() + 500;
+  while (1) {
+    if (millis() < stopTime) {
+      int readValue = -4096;
+      readValue = adsLeg1.readADC_Differential_0_1(); // read
+      if (readValue > maxValueLeg1) maxValueLeg1 = readValue; // update max
+      if (readValue < minValueLeg1) minValueLeg1 = readValue; // update min
+
+    
+    }
+    else    {
+      leg1 = ((maxValueLeg1 - minValueLeg1) * multiplier);
+      Serial.print("Leg1 Calculated: ");
+      Serial.println(leg1);
+
+     
+
+      stopTime = millis() + 500;
+     // UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+     // Serial.print( "Ammeter Task Memory: " );
+     // Serial.print(uxHighWaterMark );
+     // Serial.print( " ");
+     // Serial.println( esp_get_free_heap_size() );
+     // vTaskDelay(10);
+    }
+  }
+}
