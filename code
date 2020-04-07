@@ -42,15 +42,11 @@ void AmmeterTask(void * parameter) {
       readValue = adsLeg1.readADC_Differential_0_1(); // read
       if (readValue > maxValueLeg1) maxValueLeg1 = readValue; // update max
       if (readValue < minValueLeg1) minValueLeg1 = readValue; // update min
-
-    
     }
     else    {
       leg1 = ((maxValueLeg1 - minValueLeg1) * multiplier);
       Serial.print("Leg1 Calculated: ");
       Serial.println(leg1);
-
-     
 
       stopTime = millis() + 500;
      // UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
